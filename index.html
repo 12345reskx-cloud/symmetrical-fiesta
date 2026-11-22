@@ -170,6 +170,10 @@ details.card summary{cursor:pointer}
 .bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.bcard{background:#1c1a17;border:1px solid #2e2a22;border-radius:8px;padding:4px;text-align:center;position:relative;cursor:pointer}.bcard.boss{border-color:#6a4a1a}.bcard img{width:100%;max-width:64px;image-rendering:pixelated}.bcard small{display:block;font-size:9.5px;line-height:1.15;color:#cbb;min-height:22px}.bcard i{position:absolute;top:2px;right:4px;font-style:normal;font-size:9px;color:var(--sub)}.bcard.dim{cursor:default}
 .wn .li{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid #26241f;text-align:left}
 .card.pick{border-color:var(--gold)!important;box-shadow:0 0 0 1px rgba(232,197,71,.25)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0 6px}.chips::-webkit-scrollbar{display:none}.chips .chip{flex:none;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--txt,#ddd)}.chips .chip.on{border-color:var(--gold);background:#2a2414;color:var(--gold)}
+.selbar{display:flex;gap:6px;align-items:center;position:sticky;top:0;z-index:3;background:#191714;padding:6px 0;border-bottom:1px solid #2e2a22}.selact{position:sticky;top:44px;z-index:3;background:#191714;padding-bottom:6px}
+.cell.sel{outline:2px solid var(--gold);outline-offset:-2px;filter:brightness(1.25)}.cell.sel::after{content:'✓';position:absolute;left:3px;top:1px;color:var(--gold);font-size:12px;font-weight:700;text-shadow:0 0 3px #000}
+.bar.bk i{transition:none}
 </style></head><body>
 <div id="app">
  <div id="top"><div class="res"><span id="rG"></span><span id="rC"></span><span id="rE"></span><span id="rT"></span></div>
@@ -3071,7 +3075,7 @@ const TUT={
  forge2:{n:'Заточка, слияние, разбор',ctx:()=>S.st.found[1]+S.st.found[2]>=2||lv('smith')>=10,cx:['upgrade','merge','dismantle','reforge','runes'],steps:[
   {x:'Вещи можно улучшать. Открой любой предмет в сумке. «Заточка» поднимает уровень до +10: каждый +7% к урону или броне. Шанс падает с каждой ступенью. Слеза Ока даёт +15% шанса.'},
   {x:'Риск: с +4 провал снимает уровень заточки, с +7 предмет может рассыпаться (25%). Точи осторожно.'},
-  {x:'«Слить 3→1»: три одинаковые вещи (слот, ступень, редкость) превращаются в одну редкостью выше. Удача — 75%, иначе сгорает одна из трёх.'},
+  {x:'«Слить 3→1»: три одинаковые вещи (слот, ступень, редкость) превращаются в одну редкостью выше. Шанс зависит от редкости (обычные 90%, эпические 35%) и растёт с Кузнечным делом и Кузней; при провале сгорает самая слабая. Тройки ищутся и в банке — кнопка «⚗ Слияние» там.'},
   {x:'«Разобрать» превращает ненужное в пыль, слитки, самоцветы и кристаллы. «Перековать» за кристаллы меняет случайные свойства. Руны Зачарования добавляют, меняют или усиливают свойства.'},
  ]},
  alch:{n:'Зелья',ctx:()=>(S.res.herb0||0)>=4||lv('herb')>=5,cx:['alch','potions'],steps:[
@@ -3152,7 +3156,7 @@ const CODEX={
  perks:['Перки','На 25/50/75/99 уровне каждого навыка — выбор 1 из 2 бонусов (скорость, двойная добыча, опыт, экономия, урон, HP…). Сбрасываются при перерождении.'],
  mastery:['Мастерство','После 99 каждый миллион опыта — ★. Мирные навыки: +1% скорости за звезду, боевые: +0,5% урона.'],
  upgrade:['Заточка','+1…+10, каждый +7% урона/брони. Шанс 100% −9% за ступень (+15% со Слезой Ока). С +4 провал снимает ступень, с +7 — 25% разрушения.'],
- merge:['Слияние','3 одинаковые вещи (слот, ступень, редкость) → 1 редкостью выше. 75% успеха, при провале сгорает одна вещь. До легендарной.'],
+ merge:['Слияние','3 одинаковые вещи (слот, ступень, редкость) → 1 редкостью выше. Шанс: обычные 90%, необычные 75%, редкие 55%, эпические 35%; +1% за каждые 10 ур. Кузнечного дела, +1% за уровень Кузни (до +5%), Слеза Ока +20%. При провале сгорает самая слабая вещь. До легендарной. Тройки ищутся в сумке и банке.'],
  dismantle:['Разбор','Вещь → пыль, слитки или доски, самоцветы (редкие+), кристаллы (эпические+), Слеза (уникальные).'],
  reforge:['Перековка','За кристаллы перебрасывает все свойства предмета (кроме уникальных).'],
  runes:['Руны','Роста — добавить свойство, Хаоса — перебросить одно, Силы — +10% ко всем, Глубины — +5 уровня предмета, Слезы — 40% поднять редкость.'],
@@ -3224,7 +3228,7 @@ MORE.codex=()=>{const T=tutState();
   return h;};
 
 // ===================== РЕЛИЗ: настройки, отчёт о проблеме, резервные копии, финальная сцена =====================
-const GAME_VER='1.1.1';
+const GAME_VER='1.1.3';
 function applyView(){const z=(S.set.font||100)/100;const m=document.getElementById('app');if(m)m.style.setProperty('--fz',z);document.documentElement.style.setProperty('--fz',z);}
 // ---------- настройки v2 ----------
 const _settings0=MORE.settings;
@@ -3398,7 +3402,7 @@ function gearScore(it){const st=it.dmg?it.dmg*3:0;return st+(it.arm||0)*2+it.aff
 function isUpgrade(it){if(!it||!canEquip(it))return false;if(it.slot==='ring'){const a=S.eq.ring1,b=S.eq.ring2;if(!a||!b)return true;return gearScore(it)>Math.min(gearScore(a),gearScore(b));}
   if(it.slot==='weapon'&&S.eq.weapon&&S.eq.weapon.wt!==it.wt)return false;const cur=S.eq[it.slot];return !cur||gearScore(it)>gearScore(cur)*1.02;}
 const _itemCell=itemCell;
-itemCell=function(it,where,i){const h=_itemCell(it,where,i);if(where==='inv'&&it&&isUpgrade(it))return h.replace('<b>','<i class="upg">▲</i><b>');return h;};
+itemCell=function(it,where,i){const h=_itemCell(it,where,i);if((where==='inv'||where==='bank')&&it&&isUpgrade(it))return h.replace('<b>','<i class="upg">▲</i><b>');return h;};
 // ---------- Telegram: вибро-отклик и без лишнего подтверждения закрытия ----------
 function haptic(k){try{const H=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(!H)return;if(k==='ok')H.notificationOccurred('success');else if(k==='warn')H.notificationOccurred('warning');else H.impactOccurred(k||'light');}catch(e){}}
 const _bigToast=bigToast;bigToast=function(t){_bigToast(t);haptic('medium');};
@@ -3572,11 +3576,11 @@ openItem=function(where,i){
     if(where!=='bank'){const uc=upgCost(it);h+=upgPreview(it)+`<div class="costs">${(it.up||0)<10?uc.map(([k,n])=>k==='crystals'?`<span class="chip ${S.crystals>=n?'ok':'bad'}">${icon('crystal')}${n} <small>есть ${S.crystals}</small></span>`:resChip(k,n,k==='gold'?S.gold:(S.res[k]||0))).join(''):''}</div>${(it.up||0)<10?`<div class="btns"><button class="sm ${canPay(uc)?'gold':'dim'}" data-a="upg" data-w="${where}" data-i="${i}">Заточить</button><button class="sm ${canPay(uc)&&S.res.tear>0?'':'dim'}" data-a="upgT" data-w="${where}" data-i="${i}">Со Слезой (${S.res.tear||0})</button></div>`:'<div class="sub gold">Максимум +10</div>'}`;}
     else h+='<div class="sub">Чтобы улучшать, перенеси предмет в сумку.</div>';
     h+='<div class="btns">';
-    if(where==='inv'&&!it.u&&it.r<4){const mc=mergeCandidates(it).length;h+=`<button class="sm ${mc>=2?'':'dim'}" data-a="merge" data-i="${i}">Слить 3→1 (${mc+1}/3, 75% → ${RARITY[it.r+1].n})</button>`;}
+    if(where==='inv'&&!it.u&&it.r<4){const g=mergeGroups().find(x=>x.k===itemKey(it)&&x.items.some(y=>y[2]===it));const mc=g?g.items.length:1;h+=`<button class="sm ${mc>=3&&!it.lock?'':'dim'}" data-a="merge" data-i="${i}">Слить 3→1 (${Math.min(mc,3)}/3, ${mergeChance(it)}% → ${RARITY[it.r+1].n}, ${mergeCost(it)} зол.)</button>`;}
     if(!it.u&&where!=='bank')h+=`<button class="sm" data-a="reforge" data-w="${where}" data-i="${i}">Перековать свойства (${5+Math.floor(it.ilvl/5)} крист.)</button>`;
     if(where!=='bank')for(const r of RUNES.filter(r=>S.res[r.id]>0))h+=`<button class="sm" data-a="rune" data-r="${r.id}" data-w="${where}" data-i="${i}">${r.n} (${S.res[r.id]})</button>`;
     h+='</div>';
-    if(where==='inv'&&!it.u&&it.r<4)h+=`<div class="sub">Слияние: 3 предмета одного слота, тира и редкости. Заточенные и запертые не участвуют.</div>`;}
+    if(where==='inv'&&!it.u&&it.r<4)h+=`<div class="sub">Слияние: 3 вещи одного слота, тира и редкости из сумки или банка. Шанс зависит от редкости, Кузнечного дела и Кузни. Заточенные и запертые не участвуют.</div>`;}
   h+='</div>';
   const keep=document.querySelector('#modal.on .mbox');const st=keep?keep.scrollTop:0;
   modal(h);if(keep){const nb=document.querySelector('#modal .mbox');if(nb){nb.style.animation='none';nb.scrollTop=st;}}
@@ -3978,6 +3982,101 @@ setInterval(()=>{try{if(typeof S!=='undefined'&&S&&tgCloud()&&!document.hidden&&
     :'Синхронизация работает, только когда игра открыта как Mini App через бота в Telegram (кнопка меню или «Играть» у бота), на всех устройствах одним аккаунтом.';
   h=h.replace(/<div class="card"><b>Облако Telegram<\/b><div class="sub">[\s\S]*?<\/div>/,`<div class="card"><b>Облако Telegram</b><div class="sub">${st}</div>${tgCloud()?'<button data-a="cloudCheckNow">Проверить сейчас</button>':''}`);return h;};}
 ACT.cloudCheckNow=()=>{(async()=>{const meta=await cloudMeta().catch(()=>null);if(meta&&meta.t>(S.cloudAt||0)&&meta.dev!==devId()){S.cloudAt=Math.min(S.cloudAt||0,meta.t-1);await cloudCheck('manual');}else{const ok=await cloudPush(true);toast(ok?'☁ Всё синхронизировано':'Облако недоступно');}})();return 'no';};
+
+// ================= 1.1.2: банк — фильтры, выбор нескольких вещей, очистка, слияние, улучшение прямо в банке =================
+const BANK_MAX=500;
+const BV={f:'all',r:-1,sel:null};
+const BF=[['all','Все',()=>true],['weapon','Оружие',it=>it.slot==='weapon'],['armor','Броня',it=>['head','body','legs','hands','feet','shield','belt','cloak'].includes(it.slot)],
+ ['jew','Украшения',it=>it.slot==='ring'||it.slot==='amulet'],['up','▲ Лучше',it=>isUpgrade(it)],['uniq','Уникальные',it=>!!it.u],['prot','🔒/заточенные',it=>!!(it.lock||it.up>0)]];
+function bankFilt(it){const f=BF.find(x=>x[0]===BV.f)||BF[0];return it&&f[2](it)&&(BV.r<0||it.r===BV.r);}
+function bankIdx(){return S.bank.map((it,i)=>[it,i]).filter(([it])=>bankFilt(it));}
+function bankHtml(){
+  const n=S.bank.length,pct=n/BANK_MAX;const list=bankIdx();const sel=BV.sel;
+  let h=`<div class="card"><div class="row"><b class="grow">Банк ${n}/${BANK_MAX}</b><small class="sub">в сумке ${S.inv.filter(x=>x).length}/48</small></div><div class="bar bk"><i style="width:${Math.min(100,pct*100)}%;background:${pct>=1?'#a33':pct>0.9?'#c9a227':'#5a7a4a'}"></i></div>`;
+  if(pct>=0.9)h+=`<div class="sub ${pct>=1?'bad':'gold'}">${pct>=1?'Банк полон: когда и сумка полна, новая добыча продаётся автоматически.':'Банк почти полон.'} Освободи место кнопкой «Очистка».</div>`;
+  h+=`</div><div class="chips">${BF.map(([id,t,fn])=>{const c=S.bank.filter(x=>x&&fn(x)).length;return `<button class="chip ${BV.f===id?'on':''}" data-a="bankF" data-f="${id}">${t} <small>${c}</small></button>`;}).join('')}</div>
+  <div class="chips">${[-1,0,1,2,3,4].map(r=>`<button class="chip ${BV.r===r?'on':''}" data-a="bankR" data-r="${r}" ${r>=0?`style="color:${RARITY[r].c}"`:''}>${r<0?'Любая редкость':RARITY[r].n}</button>`).join('')}</div>`;
+  if(sel){h+=`<div class="selbar"><b class="grow">Выбрано: ${sel.size}</b><button class="sm" data-a="bankSelAll">Все ${list.length}</button><button class="sm" data-a="bankSelNone">Снять</button><button class="sm" data-a="bankSelOff">Готово</button></div>
+    <div class="btns selact"><button class="sm ${sel.size?'':'dim'}" data-a="bankDo" data-o="bag">В сумку</button><button class="sm ${sel.size?'':'dim'}" data-a="bankDo" data-o="sell">Продать</button><button class="sm ${sel.size?'':'dim'}" data-a="bankDo" data-o="dis">Разобрать</button><button class="sm ${sel.size?'':'dim'}" data-a="bankDo" data-o="lock">🔒/🔓</button></div>`;}
+  else h+=`<div class="btns"><button class="sm" data-a="bankSelOn">☑ Выбрать несколько</button><button class="sm gold" data-a="bankClean">🧹 Очистка</button><button class="sm" data-a="bankMerge">⚗ Слияние (${mergeGroups().reduce((a,g)=>a+Math.floor(g.items.length/3),0)})</button><button class="sm" data-a="bankSort">Сортировать</button><button class="sm" data-a="bagToBank">Сумку → банк</button></div>`;
+  if(!list.length)return h+`<div class="sub">${n?'Ничего не подходит под фильтр.':'Банк пуст. Сюда попадает добыча, когда сумка полна, и вещи, которые ты отправил сам.'}</div>`;
+  h+=`<div class="grid">${list.map(([it,i])=>{let c=itemCell(it,'bank',i);if(sel){c=c.replace('data-a="item"','data-a="bankTog"').replace('class="cell ',`class="cell ${sel.has(it.uid)?'sel ':''}`);}return c;}).join('')}</div>`;
+  return h;}
+{const _si=SCREENS.inv;SCREENS.inv=function(){const h=_si.apply(this,arguments);if((TAB.inv||0)!==2)return h;const k=h.indexOf('<div class="row"><span class="sub grow">Банк:');return (k>=0?h.slice(0,k):h)+bankHtml();};}
+ACT.bankF=d=>{BV.f=d.f;};ACT.bankR=d=>{BV.r=+d.r;};
+ACT.bankSelOn=()=>{BV.sel=new Set();};ACT.bankSelOff=()=>{BV.sel=null;};ACT.bankSelNone=()=>{if(BV.sel)BV.sel.clear();};
+ACT.bankSelAll=()=>{if(!BV.sel)BV.sel=new Set();for(const [it] of bankIdx())BV.sel.add(it.uid);};
+ACT.bankTog=d=>{const it=S.bank[+d.i];if(!it||!BV.sel)return;const on=!BV.sel.has(it.uid);if(on)BV.sel.add(it.uid);else BV.sel.delete(it.uid);haptic('light');
+  const el=document.querySelector(`#main [data-a="bankTog"][data-i="${d.i}"]`);if(!el)return;el.classList.toggle('sel',on);
+  const b=document.querySelector('#main .selbar b');if(b)b.textContent='Выбрано: '+BV.sel.size;document.querySelectorAll('#main .selact button').forEach(x=>x.classList.toggle('dim',!BV.sel.size));return 'no';};
+ACT.bagToBank=()=>{let n=0;S.inv.forEach((it,i)=>{if(it&&!it.lock&&!isUpgrade(it)&&S.bank.length<BANK_MAX){S.bank.push(it);S.inv[i]=null;n++;}});toast(n?'В банк: '+n+' (запертые и лучше надетого остались в сумке)':'Нечего переносить');};
+function selItems(){return BV.sel?S.bank.filter(it=>it&&BV.sel.has(it.uid)):[];}
+function removeFromBank(items){const set=new Set(items.map(x=>x.uid));S.bank=S.bank.filter(it=>!set.has(it.uid));if(BV.sel)for(const u of set)BV.sel.delete(u);}
+ACT.bankDo=d=>{const items=selItems();if(!items.length){toast('Сначала выбери вещи');return 'no';}const o=d.o;
+  if(o==='lock'){const all=items.every(x=>x.lock);items.forEach(x=>x.lock=!all);toast((all?'Замок снят: ':'🔒 Заперто: ')+items.length);return;}
+  if(o==='bag'){let n=0;for(const it of items){const f=invFree();if(f<0)break;S.inv[f]=it;n++;}removeFromBank(items.slice(0,n));toast(n<items.length?'В сумку: '+n+' — сумка заполнена':'В сумку: '+n);return;}
+  const ok=items.filter(x=>!x.lock),skip=items.length-ok.length;if(!ok.length){toast('Все выбранные под замком');return 'no';}
+  const up=ok.filter(x=>x.up>0||x.u).length;
+  const gain=o==='sell'?`<span class="chip ok">${icon('gold')}${fmt(ok.reduce((a,x)=>a+itemValue(x),0))}</span>`:sumYields(ok).map(([k,n])=>k==='crystals'?`<span class="chip ok">${icon('crystal')}${n}</span>`:`<span class="chip ok"><img class="ic" src="${resIc(k)}">${fmt(n)} <small>${esc(RES[k].n)}</small></span>`).join('');
+  modal(`<h3>${o==='sell'?'Продать':'Разобрать'} ${ok.length} предм.?</h3>${skip?`<div class="sub">Пропущено под замком: ${skip}</div>`:''}${up?`<div class="sub bad">Среди них ${up} заточенных или уникальных.</div>`:''}<div class="card"><b>Получишь:</b><div class="costs">${gain}</div></div><button class="${up?'danger':'gold'}" data-a="bankDoOk" data-o="${o}">${o==='sell'?'Продать':'Разобрать'}</button><button data-a="closeModal">Отмена</button>`);return 'no';};
+ACT.bankDoOk=d=>{const ok=selItems().filter(x=>!x.lock);let g=0;const tot=d.o==='dis'?sumYields(ok):null;
+  for(const it of ok){if(d.o==='sell'){g+=gainGold(itemValue(it));questEvent('sell',{g:itemValue(it)});}else for(const [id,n] of dismantleYield(it)){if(id==='crystals')S.crystals+=n;else addRes(id,n);}}
+  removeFromBank(ok);closeModal();sfx(d.o==='sell'?'chime':'anvil');haptic('ok');_toast(d.o==='sell'?'Продано '+ok.length+' · +'+fmt(g)+' золота':'⚒ Разобрано '+ok.length+' → '+yieldText(tot),'big',4000);};
+// ---------- очистка банка одной кнопкой ----------
+const CLEAN={r:1,o:'dis'};
+function cleanList(){const B=bestUpgradeUids();const P=presetUids();return S.bank.filter(it=>it&&!it.u&&!it.lock&&!(it.up>0)&&!P.has(it.uid)&&!B.has(it.uid)&&!isUpgrade(it)&&it.r<=CLEAN.r);}
+function cleanView(){const L=cleanList();const g=L.reduce((a,x)=>a+itemValue(x),0);const y=sumYields(L);
+  modal(`<h3>🧹 Очистка банка</h3><div class="sub">Удаляет вещи до выбранной редкости. Не трогает: уникальные, под замком, заточенные, из сохранённых билдов и вещи лучше надетых.</div>
+  <div class="chips">${[0,1,2,3].map(r=>`<button class="chip ${CLEAN.r===r?'on':''}" data-a="cleanR" data-r="${r}" style="color:${RARITY[r].c}">${['только обычные','до необычных','до редких','до эпических'][r]}</button>`).join('')}</div>
+  <div class="chips"><button class="chip ${CLEAN.o==='dis'?'on':''}" data-a="cleanO" data-o="dis">Разобрать на материалы</button><button class="chip ${CLEAN.o==='sell'?'on':''}" data-a="cleanO" data-o="sell">Продать за золото</button></div>
+  <div class="card"><b>${L.length} предм.</b> из ${S.bank.length} → ${CLEAN.o==='sell'?`<span class="chip ok">${icon('gold')}${fmt(g)}</span>`:`<div class="costs">${y.map(([k,n])=>k==='crystals'?`<span class="chip ok">${icon('crystal')}${n}</span>`:`<span class="chip ok"><img class="ic" src="${resIc(k)}">${fmt(n)} <small>${esc(RES[k].n)}</small></span>`).join('')||'—'}</div>`}</div>
+  ${CLEAN.r>=2?'<div class="sub gold">Осторожно: в выборку входят редкие вещи.</div>':''}<button class="big ${L.length?'gold':'dim'}" data-a="cleanGo">${CLEAN.o==='sell'?'Продать':'Разобрать'} ${L.length}</button><button data-a="closeModal">Отмена</button>`);}
+ACT.bankClean=()=>{cleanView();return 'no';};ACT.cleanR=d=>{CLEAN.r=+d.r;cleanView();return 'no';};ACT.cleanO=d=>{CLEAN.o=d.o;cleanView();return 'no';};
+ACT.cleanGo=()=>{const L=cleanList();if(!L.length){toast('Нечего чистить');return 'no';}let g=0;const y=CLEAN.o==='dis'?sumYields(L):null;
+  for(const it of L){if(CLEAN.o==='sell'){g+=gainGold(itemValue(it));questEvent('sell',{g:itemValue(it)});}else for(const [id,n] of dismantleYield(it)){if(id==='crystals')S.crystals+=n;else addRes(id,n);}}
+  removeFromBank(L);closeModal();sfx('anvil');haptic('ok');_toast('🧹 Освобождено '+L.length+' мест · '+(CLEAN.o==='sell'?'+'+fmt(g)+' золота':yieldText(y)),'big',4500);};
+// ---------- слияние: тройки ищутся и в сумке, и в банке ----------
+function mergeGroups(){const P=presetUids();const g={};const add=(w,i,it)=>{if(!it||it.u||it.r>=4||it.lock||it.up>0||P.has(it.uid))return;const k=itemKey(it);(g[k]=g[k]||{k,items:[]}).items.push([w,i,it]);};
+  S.inv.forEach((it,i)=>add('inv',i,it));S.bank.forEach((it,i)=>add('bank',i,it));return Object.values(g).filter(x=>x.items.length>=3).sort((a,b)=>b.items[0][2].r-a.items[0][2].r||b.items.length-a.items.length);}
+function mergeChance(it,tear){const b=[90,75,55,35][it.r]??30;return Math.min(98,b+Math.floor(lv('smith')/10)+Math.min(5,(S.town&&S.town.forge)||0)+(tear?20:0));}
+function mergeChanceNote(){return `База: обычные 90% · необычные 75% · редкие 55% · эпические 35%. Бонус: +1% за каждые 10 ур. Кузнечного дела (сейчас +${Math.floor(lv('smith')/10)}%), +1% за уровень Кузни (сейчас +${Math.min(5,(S.town&&S.town.forge)||0)}%, до +5%), Слеза Ока +20%. Максимум 98%.`;}
+function mergeCost(it){return 50*(it.r+1)*(tierOf(it.ilvl)+1);}
+function mergeView(){const G=mergeGroups();
+  modal(`<h3>⚗ Слияние 3 → 1</h3><div class="sub">3 одинаковые вещи (слот, тир, редкость) → 1 вещь на ступень редкее. При провале сгорает одна (самая слабая). Учитываются сумка и банк; запертые, заточенные и вещи из билдов не участвуют.</div>
+  <div class="sub">${mergeChanceNote()}</div>${G.length?`<div class="list">${G.map((g,gi)=>{const it=g.items[0][2];const c=mergeCost(it);const n=Math.floor(g.items.length/3);return `<div class="li"><img class="ic big" src="${itemIconUrl(it)}"><span class="grow"><b style="color:${RARITY[it.r].c}">${SLOT_N[it.slot]||it.slot}${it.wt?' · '+WEAP[it.wt].n:''}</b> · тир ${tierOf(it.ilvl)+1} ×${g.items.length}<br><small>→ <span style="color:${RARITY[it.r+1].c}">${RARITY[it.r+1].n}</span> · шанс <b>${mergeChance(it)}%</b> · ${c} зол.</small></span><button class="sm ${S.gold>=c?'gold':'dim'}" data-a="mergeG" data-g="${gi}">Слить</button>${S.res.tear>0?`<button class="sm" data-a="mergeG" data-g="${gi}" data-t="1">+Слеза ${mergeChance(it,1)}%</button>`:''}${n>1?`<button class="sm ${S.gold>=c?'':'dim'}" data-a="mergeG" data-g="${gi}" data-all="1">Все ×${n}</button>`:''}</div>`;}).join('')}</div>`:'<div class="sub">Пока нет троек одинаковых вещей.</div>'}`);}
+ACT.bankMerge=()=>{mergeView();return 'no';};
+function mergeOnce(g,tear,mustUid){if(tear&&!(S.res.tear>0))return null;
+  const sorted=[...g.items].sort((a,b)=>b[2].ilvl-a[2].ilvl);let parts;
+  if(mustUid){const m=sorted.find(x=>x[2].uid===mustUid);if(!m)return null;parts=[m,...sorted.filter(x=>x!==m).slice(0,2)];}else parts=sorted.slice(0,3);
+  if(parts.length<3)return null;const it=parts[0][2];const c=mergeCost(it);if(S.gold<c)return null;S.gold-=c;if(tear)S.res.tear--;
+  const chance=mergeChance(it,tear);
+  const take=(w,obj)=>{if(w==='inv'){const j=S.inv.indexOf(obj);if(j>=0)S.inv[j]=null;return j;}const j=S.bank.indexOf(obj);if(j>=0)S.bank.splice(j,1);return -1;};
+  if(rnd()*100<chance){const il=Math.max(...parts.map(p=>p[2].ilvl));const n=makeItem(it.slot,it.wt,il,it.r+1,'drop');n.n=it.n;const home=parts[0][0];
+    const homeIdx=take(parts[0][0],parts[0][2]);take(parts[1][0],parts[1][2]);take(parts[2][0],parts[2][2]);
+    if(home==='inv'&&homeIdx>=0)S.inv[homeIdx]=n;else if(home==='inv'){const f=invFree();if(f>=0)S.inv[f]=n;else S.bank.push(n);}else S.bank.push(n);return {ok:true,n,chance};}
+  const burn=parts.slice(1).sort((a,b)=>a[2].ilvl-b[2].ilvl)[0];take(burn[0],burn[2]);return {ok:false,chance,burned:burn[2]};}
+ACT.mergeG=d=>{const G=mergeGroups();const g=G[+d.g];if(!g){mergeView();return 'no';}const tear=!!d.t;let ok=0,fail=0,last=null;const times=d.all?Math.floor(g.items.length/3):1;
+  for(let k=0;k<times;k++){const cur=mergeGroups().find(x=>x.k===g.k);if(!cur)break;const r=mergeOnce(cur,tear);if(!r)break;if(r.ok){ok++;last=r.n;}else fail++;}
+  if(!ok&&!fail){toast(tear&&!(S.res.tear>0)?'Нет Слезы Ока':'Не хватает золота');return 'no';}sfx('anvil');haptic(ok?'ok':'warn');
+  _toast(ok?`Слияние: ${ok} удач${fail?', '+fail+' провал':''} → ${RARITY[last.r].n.toLowerCase()} «${last.n}»`:'Слияние не удалось: одна вещь сгорела','big',4000);mergeView();return 'no';};
+// слияние из окна вещи в сумке — по тем же правилам (тройка ищется в сумке и банке)
+mergeItem=function(i){const it=S.inv[i];if(!it||it.u||it.r>=4){toast('Нельзя слить');return;}if(it.lock){toast('🔒 Предмет под замком');return;}
+  const g=mergeGroups().find(x=>x.k===itemKey(it)&&x.items.some(y=>y[2]===it));if(!g){toast('Нужно ещё 2 таких же вещи (слот, тир, редкость) в сумке или банке');return;}
+  const c=mergeCost(it);if(S.gold<c){toast('Нужно '+c+' золота');return;}const r=mergeOnce(g,false,it.uid);if(!r)return;
+  if(r.ok){sfx('anvil');bigToast('Слияние удалось ('+r.chance+'%): '+RARITY[r.n.r].n);return r.n;}toast('Слияние не удалось ('+r.chance+'%): сгорела «'+r.burned.n+'»');haptic('warn');};
+// ---------- вещь из банка: надеть, улучшить, слить ----------
+ACT.equipBank=d=>{const i=+d.i;const it=S.bank[i];if(!it){closeModal();return;}if(!canEquip(it)){toast('Нужен '+SK[it.rsk].n+' '+it.req);return 'no';}
+  RING_FORCE=d.s&&/^ring[12]$/.test(d.s)?d.s:null;const sl=slotFor(it);RING_FORCE=null;const old=S.eq[sl];S.eq[sl]=it;if(old)S.bank[i]=old;else S.bank.splice(i,1);recalcMods();if(d.q)return;sfx('chime');toast('Надето из банка: '+it.n+(old?' · '+old.n+' — в банк':''));closeModal();};
+{const _oi=openItem;openItem=function(where,i){_oi(where,i);if(where!=='bank')return;const it=getItem('bank',i);if(!it)return;const m=document.querySelector('#modal .mbox');if(!m)return;
+  const btns=m.querySelector('.btns.main');if(btns&&it.slot)btns.insertAdjacentHTML('afterbegin',`<button class="${!canEquip(it)?'dim':isUpgrade(it)?'gold':''}" data-a="equipBank" data-i="${i}">Надеть</button>`);
+  const note=[...m.querySelectorAll('.sub')].find(e=>e.textContent.startsWith('Чтобы улучшать'));
+  if(note){const uc=upgCost(it);note.outerHTML=upgPreview(it)+`<div class="costs">${(it.up||0)<10?uc.map(([k,n])=>k==='crystals'?`<span class="chip ${S.crystals>=n?'ok':'bad'}">${icon('crystal')}${n} <small>есть ${S.crystals}</small></span>`:resChip(k,n,k==='gold'?S.gold:(S.res[k]||0))).join(''):''}</div>${(it.up||0)<10?`<div class="btns"><button class="sm ${canPay(uc)?'gold':'dim'}" data-a="upg" data-w="bank" data-i="${i}">Заточить</button><button class="sm ${canPay(uc)&&S.res.tear>0?'':'dim'}" data-a="upgT" data-w="bank" data-i="${i}">Со Слезой (${S.res.tear||0})</button><button class="sm" data-a="reforge" data-w="bank" data-i="${i}">Перековать</button></div>`:''}`;}
+  if(!it.u&&it.r<4){const k=itemKey(it);const g=mergeGroups().find(x=>x.k===k);if(g){const box=m.querySelector('.card:last-child');if(box)box.insertAdjacentHTML('beforeend',`<button class="sm" data-a="bankMerge">⚗ Можно слить: таких ${g.items.length}</button>`);}}};}
+// «Надеть лучшее» теперь смотрит и в банк
+{const _eb=ACT.equipBest;ACT.equipBest=()=>{_eb();let n=0;for(let k=0;k<24;k++){let bi=-1,bs=-1;S.bank.forEach((it,i)=>{if(it&&isUpgrade(it)&&gearScore(it)>bs){bs=gearScore(it);bi=i;}});if(bi<0)break;ACT.equipBank({i:bi,q:1});n++;}
+  if(n)toast('Из банка надето ещё: '+n);};}
+// апгрейды в банке тоже подсвечиваются на кнопке «Надеть лучшее»
+upgradesInBag=function(){return S.inv.filter(it=>it&&isUpgrade(it)).length+S.bank.filter(it=>it&&isUpgrade(it)).length;};
 
 // ===================== ЗАПУСК =====================
 function intro(){
